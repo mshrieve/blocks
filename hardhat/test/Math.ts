@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import Decimal from 'decimal.js'
 import { expect } from 'chai'
 Decimal.set({ precision: 27, rounding: 3 })
-
+BigNumber.config({ EXPONENTIAL_AT: 256 })
 describe('Math', function () {
   let accounts: Signer[]
   let Math: Contract
@@ -26,7 +26,6 @@ describe('Math', function () {
   })
 
   it('Should get the correct exponent from the exponent table', async function () {
-    // math.pow(2, 2**-(i+1))*10**18)
     const tableLength = 62
     const eDecimals = new Decimal('1e18')
     const fDecimals = new Decimal('1e-18')
@@ -38,6 +37,38 @@ describe('Math', function () {
         .mul(eDecimals)
         .floor()
         .toString()
+      expect(actual.toString()).to.equal(expected.toString())
+    }
+  })
+
+  it('Should exponentiate integers properly', async function () {
+    const eDecimals = new BigNumber('1e18')
+    const two = new BigNumber(2)
+
+    // 10^18 < 2^60
+    // so, 10^18 * 2^196 < 2^256
+    for (let i = 0; i < 196; i++) {
+      const actual = await Math.exponentiate(eDecimals.times(i).toString())
+      const expected = two.pow(i).times(eDecimals)
+      expect(actual.toString()).to.equal(expected.toString())
+    }
+  })
+
+  it('Should exponentiate decimals properly', async function () {
+    const eDecimals = new Decimal('1e18')
+    const fDecimals = new Decimal('1e-18')
+    const two = new Decimal(2)
+    // we actually cannot expect the last few digits to be correct :(
+    const errorMargin = new Decimal('20')
+    for (let i = 0; i < 10; i++) {
+      const result = await Math.exponentiate(i)
+      const actual = new Decimal(result.toString()).div(errorMargin).floor()
+      const expected = two
+        .pow(fDecimals.times(i))
+        .times(eDecimals)
+        .div(errorMargin)
+        .floor()
+
       expect(i + actual.toString()).to.equal(i + expected.toString())
     }
   })

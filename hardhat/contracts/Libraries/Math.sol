@@ -69,10 +69,19 @@ library Math {
         return fractional_part + integer_part;
     }
 
+    // could a Padé Approximation be much more gas efficient ?
+    // seems like the answer _could_ be yes
+    // the Padé Approximation on wikipedia for e^x is a 
+    // ratio of two (full) degree 5 polynomials
+    // so the computation would require computing
+    // x, x^2, ..., x^5, followed by 10 multiplications, 10 sums, and a quotient
+    // vs. for us, 62 lookups/bitwise ands, and up to 124 muls + divs.
+    // this is not counting the computation of the integer part, which
+    // presumably would be the same for both.
     function exponentiate(uint256 exponent) internal pure returns (uint256) {
         uint256 integer_part = exponent / e_decimals;
         uint256 fractional_part = exponent % e_decimals;
-        uint256 integral_result = 2**integer_part * e_decimals;
+        uint256 integral_result = 2**integer_part;
         uint256 fractional_result = e_decimals;
         for (uint256 i = 0; i < exponent_table_length; i++) {
             if (power_of_two_lookup(i) & fractional_part > 0)
@@ -80,7 +89,7 @@ library Math {
                     (fractional_result * exponent_table_lookup(i)) /
                     e_decimals;
         }
-        return (integral_result * fractional_result) / e_decimals;
+        return integral_result * fractional_result;
     }
 
     function exponent_table_lookup(uint256 index)
