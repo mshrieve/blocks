@@ -28,17 +28,17 @@ describe('Math', function () {
   it('Should get the correct exponent from the exponent table', async function () {
     // math.pow(2, 2**-(i+1))*10**18)
     const tableLength = 62
-    const eDecimals = new Decimal(10).pow(18)
+    const eDecimals = new Decimal('1e18')
+    const fDecimals = new Decimal('1e-18')
     const two = new Decimal(2)
-    // for (let i = 0; i < tableLength; i++) {
-    const i = 1
-    // const actual = await Math.exponent_table_lookup(i)
-    // const expected = two.pow(two.pow(i).div(eDecimals)).mul(eDecimals).floor()
-    console.log(two.pow(two.pow(i).div(eDecimals)).toString())
-    console.log(two.pow(two.pow(i).div(eDecimals)).mul(eDecimals).toString())
-    console.log(
-      two.pow(two.pow(i).div(eDecimals)).mul(eDecimals).floor().toString()
-    )
-    // expect(i + actual.toString()).to.equal(i + expected.toString())
+    for (let i = 0; i < tableLength; i++) {
+      const actual = await Math.exponent_table_lookup(i)
+      const expected = two
+        .pow(two.pow(i).mul(fDecimals))
+        .mul(eDecimals)
+        .floor()
+        .toString()
+      expect(i + actual.toString()).to.equal(i + expected.toString())
+    }
   })
 })
