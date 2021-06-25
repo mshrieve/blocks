@@ -69,7 +69,22 @@ describe('Math', function () {
         .div(errorMargin)
         .floor()
 
-      expect(i + actual.toString()).to.equal(i + expected.toString())
+      expect(actual.toString()).to.equal(expected.toString())
+    }
+  })
+
+  it('Should find the logarithm of powers of two', async function () {
+    const eDecimals = new BigNumber('1e18')
+    const two = new BigNumber(2)
+
+    const errorMargin = new Decimal('20')
+    for (let i = 0; i < 196; i++) {
+      const actual = await Math.logarithm(
+        two.pow(i).times(eDecimals).toString()
+      )
+      const expected = eDecimals.times(i)
+
+      expect(actual.toString()).to.equal(expected.toString())
     }
   })
 })
