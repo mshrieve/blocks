@@ -5,7 +5,8 @@ import Decimal from 'decimal.js'
 import { expect } from 'chai'
 Decimal.set({ precision: 27, rounding: 3 })
 BigNumber.config({ EXPONENTIAL_AT: 256 })
-describe('Math', function () {
+
+describe('Math', () => {
   let accounts: Signer[]
   let Math: Contract
 
@@ -16,7 +17,7 @@ describe('Math', function () {
     await Math.deployed()
   })
 
-  it('Should get powers of two', async function () {
+  it('Should get powers of two', async () => {
     const tableLength = 62
     for (let i = 0; i < tableLength; i++) {
       const actual = await Math.power_of_two_lookup(i)
@@ -25,7 +26,7 @@ describe('Math', function () {
     }
   })
 
-  it('Should get the correct exponent from the exponent table', async function () {
+  it('Should get the correct exponent from the exponent table', async () => {
     const tableLength = 62
     const eDecimals = new Decimal('1e18')
     const fDecimals = new Decimal('1e-18')
@@ -41,7 +42,7 @@ describe('Math', function () {
     }
   })
 
-  it('Should exponentiate integers properly', async function () {
+  it('Should exponentiate integers properly', async () => {
     const eDecimals = new BigNumber('1e18')
     const two = new BigNumber(2)
 
@@ -54,7 +55,7 @@ describe('Math', function () {
     }
   })
 
-  it('Should exponentiate decimals properly', async function () {
+  it('Should exponentiate decimals properly', async () => {
     const eDecimals = new Decimal('1e18')
     const fDecimals = new Decimal('1e-18')
     const two = new Decimal(2)
@@ -73,7 +74,7 @@ describe('Math', function () {
     }
   })
 
-  it('Should find the logarithm of powers of two', async function () {
+  it('Should find the logarithm of powers of two', async () => {
     const eDecimals = new BigNumber('1e18')
     const two = new BigNumber(2)
 
