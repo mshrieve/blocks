@@ -42,7 +42,7 @@ contract Blocks is ERC1155 {
         // subtract 1, to make the base weight zero
         _weights[bucket] = new_weight - e_decimals;
         _quantities[bucket] += amount;
-        // _earnings += price;
+        _earnings += price;
 
         _mint(msg.sender, bucket, amount, '');
     }

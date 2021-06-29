@@ -5,4 +5,4 @@ cd hardhat
 npx hardhat node
 
 # to run script on localhost
-npx hardhat --network localhost run scripts/deploy-token.ts
+npx hardhat --network localhost run hardhat/scripts/deploy.ts
