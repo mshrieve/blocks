@@ -1,4 +1,3 @@
-import { usePrices, handlePurchase } from '../hooks/blocks'
 import { useEffect, useState, useContext } from 'react'
 import { BlocksContext } from '../context/blocks'
 

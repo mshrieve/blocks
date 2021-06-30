@@ -12,9 +12,3 @@ const contract = new ethers.Contract(
 import BigNumber from 'bignumber.js'
 const eDecimals = new BigNumber('10').pow(18)
 const initPrices = new Array(100).fill(0.01)
-
-export const handlePurchase = async (bucket, amount) => {
-  const purchase = await contract.purchase(bucket, amount)
-  const receipt = await purchase.wait()
-  console.log(receipt)
-}

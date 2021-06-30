@@ -47,7 +47,7 @@ contract Blocks is ERC1155 {
         _mint(msg.sender, bucket, amount, '');
     }
 
-    function fake_purchase(uint256 bucket, uint256 amount) public {
+    function fakePurchase(uint256 bucket, uint256 amount) public {
         _mint(msg.sender, bucket, amount, '');
     }
 
@@ -68,7 +68,7 @@ contract Blocks is ERC1155 {
     //     // _mint(msg.sender, bucket, amount, "");
     // }
 
-    function get_bucket_price(uint256 bucket) public view returns (uint256) {
+    function getBucketPrice(uint256 bucket) public view returns (uint256) {
         return ((_weights[bucket] + e_decimals) * e_decimals) / _total_weight;
     }
 
@@ -80,7 +80,7 @@ contract Blocks is ERC1155 {
     {
         require(price < e_decimals, 'getRequiredAmount: price too high');
         require(
-            price > get_bucket_price(bucket),
+            price > getBucketPrice(bucket),
             'getRequiredAmount: price too low'
         );
         return
