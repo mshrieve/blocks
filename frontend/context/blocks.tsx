@@ -19,20 +19,19 @@ const defaultState = {
   lastTxTime: 0,
   handlePurchase: async (bucket, amount) =>
     console.error('handlePurchase is undefined.'),
-  getData: (canvas) => console.error('getData is undefined.'),
-  contract: undefined
+  contract: undefined,
+  accounts: undefined
 }
 
 export const BlocksContext = createContext(defaultState)
 export const BlocksProvider = ({ children }) => {
-  const [value, setValue] = useState(defaultState)
-
   const [lastTxTime, setLastTxTime] = useState(0)
   const { chartRef } = useContext(ChartContext)
 
   const provider = new ethers.providers.JsonRpcProvider(
     'http://127.0.0.1:8545/'
   )
+  const [accounts, setAccounts] = useState([])
   const [signer, setSigner] = useState(provider.getSigner())
   const [contract, setContract] = useState(
     new ethers.Contract(
@@ -41,6 +40,10 @@ export const BlocksProvider = ({ children }) => {
       signer
     )
   )
+
+  useEffect(() => {
+    provider.listAccounts().then((x) => setAccounts(x))
+  }, [])
 
   const prices = usePrices({ chartRef, contract, lastTxTime })
 
@@ -60,9 +63,18 @@ export const BlocksProvider = ({ children }) => {
       handlePurchase,
       prices,
       lastTxTime,
-      contract
+      contract,
+      accounts
     }))
-  }, [prices, handlePurchase, lastTxTime, contract])
+  }, [prices, handlePurchase, lastTxTime, contract, accounts])
+
+  const [value, setValue] = useState({
+    handlePurchase,
+    prices,
+    lastTxTime,
+    contract,
+    accounts
+  })
 
   return (
     <BlocksContext.Provider value={value}>{children}</BlocksContext.Provider>

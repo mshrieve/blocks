@@ -29,7 +29,9 @@ export const useBalances = ({ contract, lastTxTime }) => {
         initPrices.map((_, i) =>
           contract
             .balanceOfBatch(new Array(100).fill(config[0][1]), batch)
-            .then((x: BigNumber[]) => x.reduce((acc, cur) => acc.plus(cur), new BigNumber(0), )
+            .then((x: BigNumber[]) =>
+              x.reduce((acc, cur) => acc.plus(cur), new BigNumber(0))
+            )
         )
       ).then((p) =>
         setBalances((balances) => ({ ...balances, [config[0][1]]: 1 }))
