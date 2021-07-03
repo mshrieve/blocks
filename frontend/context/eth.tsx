@@ -1,5 +1,5 @@
 import { createContext, useCallback, useState, useEffect } from 'react'
-import { ethers } from 'ethers'
+import { Contract, ethers } from 'ethers'
 import Blocks from '../../hardhat/artifacts/hardhat/contracts/Blocks.sol/Blocks.json'
 import USDC from '../../hardhat/artifacts/hardhat/contracts/Mocks/USDC.sol/USDC.json'
 
@@ -9,11 +9,14 @@ import BigNumber from 'bignumber.js'
 const initPrices = new Array(100).fill(0.01)
 
 const defaultState = {
-  updateActiveAccount: (address) => console.error('setAccount is not defined'),
+  updateActiveAccount: (address) => console.error('setAccount is not defined.'),
+  handleTransaction: (contract, method, args) =>
+    console.error('handleTransaction is not defined.'),
   blocksContract: undefined,
   usdcContract: undefined,
   accounts: undefined,
-  activeAccount: undefined
+  activeAccount: undefined,
+  lastTxTime: undefined
 }
 
 const EthContext = createContext(defaultState)
@@ -25,6 +28,8 @@ const EthProvider = ({ children }) => {
   const [accounts, setAccounts] = useState([])
   const [activeAccount, setActiveAccount] = useState('')
   const [signer, setSigner] = useState(provider.getSigner())
+  const [lastTxTime, setLastTxTime] = useState(0)
+
   const [blocksContract, setBlocksContract] = useState(
     new ethers.Contract(
       process.env.NEXT_PUBLIC_BLOCKS_ADDRESS,
@@ -32,28 +37,48 @@ const EthProvider = ({ children }) => {
       signer
     )
   )
-
   const [usdcContract, setUsdcContract] = useState(
     new ethers.Contract(process.env.NEXT_PUBLIC_USDC_ADDRESS, USDC.abi, signer)
   )
 
-  useEffect(() => {
-    provider.listAccounts().then((x) => {
-      setActiveAccount(x[0])
-      setAccounts(x)
-    })
-  }, [])
-
   const updateActiveAccount = useCallback(
     (account) => {
-      setBlocksContract(blocksContract.connect(provider.getSigner(account)))
-      setUsdcContract(usdcContract.connect(provider.getSigner(account)))
-      setActiveAccount(account)
+      const updatedSigner = provider.getSigner(account)
+      setBlocksContract(blocksContract.connect(updatedSigner))
+      setUsdcContract(usdcContract.connect(updatedSigner))
+      setSigner(updatedSigner)
+      updatedSigner.getAddress().then((x) => setActiveAccount(x))
     },
     [blocksContract, usdcContract, provider]
   )
-  // const getBalance = useCallback(address)
 
+  const handleTransaction = useCallback(
+    async (contract, method, args) => {
+      const transaction = await contract[method](...args)
+      const receipt = await transaction.wait()
+      console.log(transaction)
+      console.log(receipt)
+      setLastTxTime((x) => x + 1)
+    },
+    [setLastTxTime]
+  )
+
+  useEffect(
+    () => console.log('active: ', activeAccount.length, activeAccount),
+    [activeAccount]
+  )
+
+  useEffect(() => {
+    provider.listAccounts().then((x) => {
+      setAccounts(x)
+      signer.getAddress().then((x) => setActiveAccount(x))
+    })
+  }, [])
+  // const getBalance = useCallback(address)
+  useEffect(
+    () => console.log('eth context, lastTxTime: ', lastTxTime),
+    [lastTxTime]
+  )
   useEffect(() => {
     console.log('value updated')
     setValue((value) => ({
@@ -62,16 +87,28 @@ const EthProvider = ({ children }) => {
       updateActiveAccount,
       activeAccount,
       blocksContract,
-      usdcContract
+      usdcContract,
+      lastTxTime,
+      handleTransaction
     }))
-  }, [accounts, updateActiveAccount, activeAccount])
+  }, [
+    accounts,
+    updateActiveAccount,
+    activeAccount,
+    blocksContract,
+    usdcContract,
+    lastTxTime,
+    handleTransaction
+  ])
 
   const [value, setValue] = useState({
     accounts,
     updateActiveAccount,
     activeAccount,
     blocksContract,
-    usdcContract
+    usdcContract,
+    lastTxTime,
+    handleTransaction
   })
 
   return <EthContext.Provider value={value}>{children}</EthContext.Provider>

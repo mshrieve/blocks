@@ -4,10 +4,11 @@ import { BigNumber } from 'bignumber.js'
 async function main() {
   // We get the contract to deploy
   const eDecimals = new BigNumber('10').pow(18)
+  const usdcDecimals = new BigNumber('10').pow(6)
   const USDC = await ethers.getContractFactory('USDC')
   const usdcContract = await USDC.deploy()
   const signerAddress = await usdcContract.signer.getAddress()
-  usdcContract.mint(signerAddress, eDecimals.times(10000).toFixed())
+  usdcContract.mint(signerAddress, usdcDecimals.times(10000).toFixed())
   const Blocks = await ethers.getContractFactory('Blocks')
   const blocksContract = await Blocks.deploy(
     100, // n = number of buckets

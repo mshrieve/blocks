@@ -18,7 +18,9 @@ export const AccountSelect = ({}) => {
         id="account-select"
       >
         {accounts.map((a) => (
-          <option value={a}>{a}</option>
+          <option key={a} value={a}>
+            {a}
+          </option>
         ))}
       </select>
     </section>

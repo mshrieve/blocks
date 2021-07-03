@@ -1,5 +1,3 @@
-# run these in hardhat directory
-cd hardhat
 
 # to run localhost hardhard network
 npx hardhat node

@@ -1,47 +1,65 @@
 import { useContext, useCallback, useState } from 'react'
-
-import { EthContext, eDecimals } from '../context/eth'
+import { ethers } from 'ethers'
+import { EthContext } from '../context/eth'
+import { BigNumber } from 'bignumber.js'
 
 export const useUSDC = () => {
-  const [lastTxTime, setLastTxTime] = useState(0)
-  const { usdcContract: contract } = useContext(EthContext)
+  const {
+    usdcContract: contract,
+    blocksContract,
+    lastTxTime,
+    handleTransaction
+  } = useContext(EthContext)
 
   const getBalance = useCallback(
     async (account) => {
-      const balance = await contract.balanceOf(account)
-      const receipt = await balance.wait()
-      console.log(balance)
-      console.log(receipt)
+      console.log(account, lastTxTime)
+      if (account != undefined && account.length > 0) {
+        console.log(ethers.utils.isAddress(account))
+        const address = ethers.utils.getAddress(account)
+        const balance = await contract.balanceOf(address)
+        console.log(balance.toString())
 
-      return balance
+        return balance
+      }
+      return undefined
     },
-    [contract]
+    [contract, lastTxTime]
+  )
+
+  const getAllowance = useCallback(
+    async (account) => {
+      console.log(account, lastTxTime)
+      if (account.length > 0) {
+        console.log(ethers.utils.isAddress(account))
+        const allowance = await contract.allowance(
+          account,
+          process.env.NEXT_PUBLIC_BLOCKS_ADDRESS
+        )
+        console.log(allowance.toString())
+        return allowance
+      }
+      return undefined
+    },
+    [contract, lastTxTime]
   )
 
   const handleTransfer = useCallback(
-    async (sender, recipient, amount) => {
-      const transfer = await contract.transferFrom(sender, recipient, amount)
-      const receipt = await transfer.wait()
-      console.log(transfer)
-      console.log(receipt)
-      setLastTxTime((x) => x + 1)
-    },
-    [contract]
+    async (sender, recipient, amount) =>
+      handleTransaction(contract, 'transferFrom', [sender, recipient, amount]),
+    [contract, handleTransaction]
   )
 
   //   function approve(address spender, uint256 amount) external returns (bool);
   const handleApprove = useCallback(
-    async (amount) => {
-      const approve = await contract.approve(contract.address, amount)
-      const receipt = await approve.wait()
-      console.log(approve)
-      console.log(receipt)
-    },
+    async (amount) =>
+      handleTransaction(contract, 'approve', [blocksContract.address, amount]),
     [contract]
   )
 
   return {
     getBalance,
+    getAllowance,
     handleTransfer,
     handleApprove
   }
