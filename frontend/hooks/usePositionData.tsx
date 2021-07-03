@@ -3,7 +3,7 @@ import { ethers } from 'ethers'
 import { ChartContext } from '../context/chart'
 import BigNumber from 'bignumber.js'
 import { EthContext, eDecimals } from '../context/eth'
-const initPrices: number[] = new Array(100).fill(0)
+const initPrices: string[] = new Array(100).fill('0')
 
 export const usePositionData = () => {
   const {
@@ -15,7 +15,7 @@ export const usePositionData = () => {
 
   // get prices
   useEffect(() => {
-    console.log('fetching positions', lastTxTime)
+    console.log('fetching positions', lastTxTime, activeAccount)
     if (activeAccount != undefined && activeAccount.length > 0)
       Promise.all(
         initPrices.map((_, i) =>

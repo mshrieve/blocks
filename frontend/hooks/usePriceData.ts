@@ -3,7 +3,7 @@ import { ethers } from 'ethers'
 import { ChartContext } from '../context/chart'
 import BigNumber from 'bignumber.js'
 import { EthContext, eDecimals } from '../context/eth'
-const initPrices = new Array(100).fill(0.01)
+const initPrices = new Array(100).fill('0.01')
 
 export const usePriceData = () => {
   const { blocksContract: contract, lastTxTime } = useContext(EthContext)

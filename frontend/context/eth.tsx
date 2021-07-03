@@ -26,8 +26,8 @@ const EthProvider = ({ children }) => {
   )
 
   const [accounts, setAccounts] = useState([])
-  const [activeAccount, setActiveAccount] = useState('')
   const [signer, setSigner] = useState(provider.getSigner())
+  const [activeAccount, setActiveAccount] = useState('')
   const [lastTxTime, setLastTxTime] = useState(0)
 
   const [blocksContract, setBlocksContract] = useState(
@@ -71,9 +71,13 @@ const EthProvider = ({ children }) => {
   useEffect(() => {
     provider.listAccounts().then((x) => {
       setAccounts(x)
-      signer.getAddress().then((x) => setActiveAccount(x))
+      signer
+        .getAddress()
+        .then((x) => setActiveAccount(x))
+        .then(() => setLastTxTime((x) => x + 1))
     })
   }, [])
+
   // const getBalance = useCallback(address)
   useEffect(
     () => console.log('eth context, lastTxTime: ', lastTxTime),
