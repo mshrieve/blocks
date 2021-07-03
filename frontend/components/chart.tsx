@@ -31,8 +31,8 @@ const data = {
   labels: new Array(100).fill('').map((_, i) => i * 50),
   datasets: [
     {
-      backgroundColor: 'rgba(255,99,132,0.2)',
-      borderColor: 'rgba(255,99,132,1)',
+      backgroundColor: 'rgba(100,99,132,0.2)',
+      borderColor: 'rgba(100,99,132,1)',
       borderWidth: 1,
       hoverBackgroundColor: 'rgba(255,99,132,0.4)',
       hoverBorderColor: 'rgba(255,99,132,1)',

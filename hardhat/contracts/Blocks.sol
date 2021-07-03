@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/token/ERC1155/ERC1155.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import './Libraries/Math.sol';
 
 // This is the main building block for smart contracts.
@@ -16,11 +17,20 @@ contract Blocks is ERC1155 {
     uint256 public _b;
     uint256 public _value;
     uint256 public _earnings;
+    uint256 public _delta;
 
     uint256 constant decimals = 18;
     uint256 constant e_decimals = 10**decimals;
 
-    constructor(uint256 N, uint256 b) ERC1155('none') {
+    IERC20 private _WETH;
+    IERC20 private _USDC;
+
+    constructor(
+        uint256 N,
+        uint256 b,
+        uint256 d,
+        address USDC
+    ) ERC1155('none') {
         require(N > 0, 'constructor: N should be positive');
         _N = N;
         require(b > 0, 'constructor: b should be positive');
@@ -28,6 +38,9 @@ contract Blocks is ERC1155 {
 
         _total_weight = _N * e_decimals;
         _value = _b * _total_weight.logarithm();
+        _delta = d;
+
+        _USDC = IERC20(USDC);
     }
 
     function purchase(uint256 bucket, uint256 amount) public {
@@ -43,30 +56,108 @@ contract Blocks is ERC1155 {
         _weights[bucket] = new_weight - e_decimals;
         _quantities[bucket] += amount;
         _earnings += price;
+        _value = value;
 
+        _USDC.transferFrom(msg.sender, address(this), price);
         _mint(msg.sender, bucket, amount, '');
+    }
+
+    function purchaseLeftBlock(uint256 bucket, uint256 amount) public {
+        uint256 multiplier = ((amount * e_decimals) / _b).exponentiate();
+        // need to add 1, since weights are initialized at zero
+        uint256[] memory buckets = new uint256[](bucket);
+        uint256[] memory amounts = new uint256[](bucket);
+        uint256 accumulated_weight;
+
+        for (uint256 i = 0; i < bucket; i++) {
+            // add one
+            uint256 old_weight = _weights[i] + e_decimals;
+            uint256 new_weight = (old_weight * multiplier) / e_decimals;
+
+            accumulated_weight += new_weight - old_weight;
+            // subtract 1, to make the base weight zero
+            _weights[i] = new_weight - e_decimals;
+            _quantities[bucket] += amount;
+
+            buckets[i] = i;
+            amounts[i] = amount;
+        }
+
+        _total_weight += accumulated_weight;
+        uint256 value = _b * _total_weight.logarithm();
+        uint256 price = value - _value;
+
+        _value = value;
+        _earnings += price;
+
+        _USDC.transferFrom(msg.sender, address(this), price);
+        _mintBatch(msg.sender, buckets, amounts, '');
+    }
+
+    function purchaseLeftSlope(uint256 bucket, uint256 base_amount) public {
+        uint256 base_multiplier = ((base_amount * _delta) / _b).exponentiate();
+        uint256 multiplier = base_multiplier;
+        // need to add 1, since weights are initialized at zero
+        uint256[] memory buckets = new uint256[](bucket);
+        uint256[] memory amounts = new uint256[](bucket);
+        uint256 accumulated_weight;
+        uint256 amount_increment = (base_amount * _delta) / e_decimals;
+        uint256 amount = amount_increment;
+        uint256 i = bucket;
+        for (uint256 j = 0; j < bucket; j++) {
+            // add one
+            i -= 1;
+            uint256 old_weight = _weights[i] + e_decimals;
+            uint256 new_weight = (old_weight * multiplier) / e_decimals;
+            accumulated_weight += new_weight - old_weight;
+            // subtract 1, to make the base weight zero
+            _weights[i] = new_weight - e_decimals;
+            _quantities[i] += amount;
+            buckets[i] = i;
+            amounts[i] = amount;
+            // multiplier = (multiplier * base_multiplier) / e_decimals;
+            amount += amount_increment;
+        }
+
+        _total_weight += accumulated_weight;
+        uint256 value = _b * _total_weight.logarithm();
+        uint256 price = value - _value;
+
+        _value = value;
+        _earnings += price;
+
+        _USDC.transferFrom(msg.sender, address(this), price);
+        _mintBatch(msg.sender, buckets, amounts, '');
     }
 
     function fakePurchase(uint256 bucket, uint256 amount) public {
         _mint(msg.sender, bucket, amount, '');
     }
 
-    // function purchaseBatch(uint256[] buckets, uint256[] amounts) public {
-    //     // uint256 multiplier = ((amount * e_decimals) / _b).exponentiate();
-    //     // // need to add 1, since weights are initialized at zero
-    //     // uint256 old_weight = _weights[bucket] + e_decimals;
-    //     // uint256 new_weight = (old_weight * multiplier) / e_decimals;
-    //     // uint256 total_weight = _total_weight - old_weight + new_weight;
-    //     // uint256 value = _b * total_weight.logarithm();
-    //     // uint256 price = value - _value;
-    //     // _total_weight = total_weight;
-    //     // // subtract 1, to make the base weight zero
-    //     // _weights[bucket] = new_weight - e_decimals;
-    //     // _quantities[bucket] += amount;
-    //     // _earnings += price;
+    function purchaseBatch(uint256[] memory buckets, uint256[] memory amounts)
+        public
+    {
+        require(buckets.length == amounts.length);
+        uint256 total_weight = _total_weight;
+        for (uint256 i = 0; i < buckets.length; i++) {
+            uint256 multiplier = ((amounts[i] * e_decimals) / _b)
+            .padeExponentiate();
+            // need to add 1, since weights are initialized at zero
+            uint256 old_weight = _weights[buckets[i]] + e_decimals;
+            uint256 new_weight = (old_weight * multiplier) / e_decimals;
+            total_weight = total_weight - old_weight + new_weight;
 
-    //     // _mint(msg.sender, bucket, amount, "");
-    // }
+            // subtract 1, to make the base weight zero
+            _weights[buckets[i]] = new_weight - e_decimals;
+            _quantities[buckets[i]] += amounts[i];
+        }
+        uint256 value = _b * total_weight.logarithm();
+        uint256 price = value - _value;
+        _total_weight = total_weight;
+        _earnings += price;
+        _value = value;
+        _mintBatch(msg.sender, buckets, amounts, '');
+    }
 
     function getBucketPrice(uint256 bucket) public view returns (uint256) {
         return ((_weights[bucket] + e_decimals) * e_decimals) / _total_weight;

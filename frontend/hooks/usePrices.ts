@@ -1,26 +1,16 @@
-import {
-  createContext,
-  useContext,
-  useCallback,
-  useState,
-  useRef,
-  useEffect
-} from 'react'
-import { ethers, utils } from 'ethers'
-
+import { useContext, useState, useEffect } from 'react'
+import { ethers } from 'ethers'
+import { ChartContext } from '../context/chart'
 import BigNumber from 'bignumber.js'
-const eDecimals = new BigNumber('10').pow(18)
+import { eDecimals } from '../util'
 const initPrices = new Array(100).fill(0.01)
 
-export const usePrices = ({ chartRef, contract, lastTxTime }) => {
+export const usePrices = ({ contract, lastTxTime }) => {
   const [prices, setPrices] = useState(initPrices)
-
+  const { setData } = useContext(ChartContext)
   // update the chart
   useEffect(() => {
-    if (chartRef && chartRef.current) {
-      chartRef.current.data.datasets[0].data = prices
-      chartRef.current.update()
-    }
+    setData(prices, 0)
   }, [prices])
 
   // get prices

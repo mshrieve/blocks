@@ -74,6 +74,25 @@ describe('Math', () => {
     }
   })
 
+  it('Should pade exponentiate decimals properly', async () => {
+    const eDecimals = new Decimal('1e18')
+    const fDecimals = new Decimal('1e-18')
+    const two = new Decimal(2)
+    // we actually cannot expect the last few digits to be correct :(
+    const errorMargin = new Decimal('20')
+    for (let i = 0; i < 10; i++) {
+      const result = await Math.padeExponentiate(i)
+      const actual = new Decimal(result.toString()).div(errorMargin).floor()
+      const expected = two
+        .pow(fDecimals.times(i))
+        .times(eDecimals)
+        .div(errorMargin)
+        .floor()
+
+      expect(actual.toString()).to.equal(expected.toString())
+    }
+  })
+
   it('Should find the logarithm of powers of two', async () => {
     const eDecimals = new BigNumber('1e18')
     const two = new BigNumber(2)

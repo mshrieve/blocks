@@ -6,37 +6,38 @@ import {
   useRef,
   useEffect
 } from 'react'
-import { ethers, utils } from 'ethers'
-import config from '../config.json'
 
+import { BlocksContext } from '../context/blocks'
+import { ChartContext } from '../context/chart'
 import BigNumber from 'bignumber.js'
-const eDecimals = new BigNumber('10').pow(18)
+import { eDecimals } from '../context/eth'
 const initPrices = new Array(100).fill(0.01)
 const batch = new Array(100).fill(undefined).map((_, i) => i)
 
-export const useBalances = ({ contract, lastTxTime }) => {
-  const [balances, setBalances] = useState({
-    [config[0][1]]: 0,
-    [config[1][1]]: 0,
-    [config[2][1]]: 0,
-    [config[3][1]]: 0
-  })
-
+export const useBalances = ({ accounts, contract, lastTxTime }) => {
+  const [balances, setBalances] = useState(['0', '0', '0', '0'])
+  const { setData } = useContext(ChartContext)
   // get balances
   useEffect(() => {
-    if (contract != undefined)
-      Promise.all(
-        initPrices.map((_, i) =>
-          contract
-            .balanceOfBatch(new Array(100).fill(config[0][1]), batch)
-            .then((x: BigNumber[]) =>
-              x.reduce((acc, cur) => acc.plus(cur), new BigNumber(0))
+    if (contract != undefined && accounts.length > 0)
+      for (const i of [0, 1, 2, 3]) {
+        contract
+          .balanceOfBatch(new Array(100).fill(accounts[i]), batch)
+          .then((x: BigNumber[]) => {
+            return x.reduce(
+              (acc, cur) => acc.plus(cur.toString()),
+              new BigNumber(0)
             )
-        )
-      ).then((p) =>
-        setBalances((balances) => ({ ...balances, [config[0][1]]: 1 }))
-      )
-  }, [lastTxTime, contract])
+          })
+          .then((x) =>
+            setBalances((balances) => [
+              ...balances.slice(0, i),
+              x.toString(),
+              ...balances.slice(i + 1, 100)
+            ])
+          )
+      }
+  }, [contract, lastTxTime])
 
   return balances
 }
