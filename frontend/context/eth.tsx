@@ -1,22 +1,30 @@
-import { createContext, useCallback, useState, useEffect } from 'react'
+import {
+  createContext,
+  useCallback,
+  useState,
+  useEffect,
+  useContext
+} from 'react'
 import { Contract, ethers } from 'ethers'
 import Blocks from '../../hardhat/artifacts/hardhat/contracts/Blocks.sol/Blocks.json'
 import USDC from '../../hardhat/artifacts/hardhat/contracts/Mocks/USDC.sol/USDC.json'
+import Controller from '../../hardhat/artifacts/hardhat/contracts/Controller.sol/Controller.json'
 
 import { eDecimals } from '../util'
 
-import BigNumber from 'bignumber.js'
 const initPrices = new Array(100).fill(0.01)
 
 const defaultState = {
   updateActiveAccount: (address) => console.error('setAccount is not defined.'),
-  handleTransaction: (contract, method, args) =>
-    console.error('handleTransaction is not defined.'),
-  blocksContract: undefined,
+  handleTransaction: async (contract, method, args) => ({
+    logs: []
+  }),
   usdcContract: undefined,
+  controllerContract: undefined,
   accounts: undefined,
   activeAccount: undefined,
-  lastTxTime: undefined
+  lastTxTime: undefined,
+  signer: undefined
 }
 
 const EthContext = createContext(defaultState)
@@ -29,14 +37,24 @@ const EthProvider = ({ children }) => {
   const [signer, setSigner] = useState(provider.getSigner())
   const [activeAccount, setActiveAccount] = useState('')
   const [lastTxTime, setLastTxTime] = useState(0)
-
-  const [blocksContract, setBlocksContract] = useState(
+  const [controllerContract, setControllerContract] = useState(
     new ethers.Contract(
-      process.env.NEXT_PUBLIC_BLOCKS_ADDRESS,
-      Blocks.abi,
+      process.env.NEXT_PUBLIC_CONTROLLER_ADDRESS,
+      Controller.abi,
       signer
     )
   )
+  const [rounds, setRounds] = useState([])
+  const [vaultAddress, setVaultAddress] = useState('')
+  useEffect(() => {
+    if (controllerContract != undefined)
+      controllerContract.getRounds().then((x) => setRounds(x))
+  }, [controllerContract, lastTxTime])
+  useEffect(() => {
+    if (controllerContract != undefined)
+      controllerContract.getVaultAddress().then((x) => setVaultAddress(x))
+  }, [controllerContract])
+
   const [usdcContract, setUsdcContract] = useState(
     new ethers.Contract(process.env.NEXT_PUBLIC_USDC_ADDRESS, USDC.abi, signer)
   )
@@ -44,21 +62,18 @@ const EthProvider = ({ children }) => {
   const updateActiveAccount = useCallback(
     (account) => {
       const updatedSigner = provider.getSigner(account)
-      setBlocksContract(blocksContract.connect(updatedSigner))
-      setUsdcContract(usdcContract.connect(updatedSigner))
       setSigner(updatedSigner)
       updatedSigner.getAddress().then((x) => setActiveAccount(x))
     },
-    [blocksContract, usdcContract, provider]
+    [usdcContract, provider]
   )
 
   const handleTransaction = useCallback(
     async (contract, method, args) => {
-      const transaction = await contract[method](...args)
+      const transaction = await contract.connect(signer)[method](...args)
       const receipt = await transaction.wait()
-      console.log(transaction)
-      console.log(receipt)
       setLastTxTime((x) => x + 1)
+      return receipt
     },
     [setLastTxTime]
   )
@@ -90,7 +105,7 @@ const EthProvider = ({ children }) => {
       accounts,
       updateActiveAccount,
       activeAccount,
-      blocksContract,
+      signer,
       usdcContract,
       lastTxTime,
       handleTransaction
@@ -99,7 +114,7 @@ const EthProvider = ({ children }) => {
     accounts,
     updateActiveAccount,
     activeAccount,
-    blocksContract,
+    signer,
     usdcContract,
     lastTxTime,
     handleTransaction
@@ -109,8 +124,9 @@ const EthProvider = ({ children }) => {
     accounts,
     updateActiveAccount,
     activeAccount,
-    blocksContract,
+    signer,
     usdcContract,
+    controllerContract,
     lastTxTime,
     handleTransaction
   })
@@ -118,4 +134,5 @@ const EthProvider = ({ children }) => {
   return <EthContext.Provider value={value}>{children}</EthContext.Provider>
 }
 
-export { EthContext, EthProvider, eDecimals }
+const useEth = () => useContext(EthContext)
+export { EthContext, EthProvider, eDecimals, useEth }

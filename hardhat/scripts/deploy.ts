@@ -1,4 +1,5 @@
 import { ethers } from 'hardhat'
+
 import { BigNumber } from 'bignumber.js'
 
 async function main() {
@@ -9,19 +10,27 @@ async function main() {
   const usdcContract = await USDC.deploy()
   const signerAddress = await usdcContract.signer.getAddress()
   usdcContract.mint(signerAddress, usdcDecimals.times(10000).toFixed())
-  const Blocks = await ethers.getContractFactory('Blocks')
-  const blocksContract = await Blocks.deploy(
-    100, // n = number of buckets
-    eDecimals.times(5000).toFixed(), // b = constant,
-    eDecimals.times(100).toFixed(), // delta = size of each bucket
-    usdcContract.address
-  )
+  const Controller = await ethers.getContractFactory('Controller')
+  const controllerContract = await Controller.deploy()
+  console.log(controllerContract.abi)
 
-  await blocksContract.deployed()
+  const abi = ['event RoundCreated(address round)']
+  const iface = new ethers.utils.Interface(abi)
 
-  console.log('Signer: ', await blocksContract.signer.getAddress())
-  console.log('USDC: ', usdcContract.address)
-  console.log('Blocks: ', blocksContract.address)
+  await controllerContract.deployed()
+  console.log('Signer: ', await controllerContract.signer.getAddress())
+  const vaultAddress = await controllerContract.getVaultAddress()
+  console.log('vault address: ', vaultAddress)
+  console.log('controller Contract: ', controllerContract.address)
+  console.log('usdc Contract: ', usdcContract.address)
+  // const createRound = await controllerContract.createRound(
+  //   100, // n = number of buckets
+  //   eDecimals.times(5000).toFixed(), // b = constant,
+  //   usdcContract.address,
+  //   vaultAddress
+  // )
+  // const receipt = await createRound.wait()
+  // console.log(receipt.logs.map((log: any) => iface.parseLog(log)))
 }
 
 main()

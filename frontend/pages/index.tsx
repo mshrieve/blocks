@@ -1,7 +1,7 @@
 import { WrappedChart } from '../components/chart'
 
 import { DataProvider } from '../context/data'
-import { EthProvider } from '../context/eth'
+
 import { ChartProvider } from '../context/chart'
 import { AccountSelect } from '../components/AccountSelect'
 
@@ -10,18 +10,16 @@ import { ChartControl } from '../components/ChartControl'
 
 const App = () => {
   return (
-    <EthProvider>
-      <ChartProvider>
-        <DataProvider>
+    <ChartProvider>
+      <DataProvider>
+        <main>
           <AccountSelect />
-          <main>
-            <ChartControl />
-            <WrappedChart />
-            <Controls />
-          </main>
-        </DataProvider>
-      </ChartProvider>
-    </EthProvider>
+          <ChartControl />
+          <WrappedChart />
+          <Controls />
+        </main>
+      </DataProvider>
+    </ChartProvider>
   )
 }
 

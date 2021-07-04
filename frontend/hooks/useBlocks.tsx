@@ -1,10 +1,12 @@
-import { useContext, useCallback } from 'react'
-
+import { useContext, useCallback, useState } from 'react'
+import { ethers } from 'ethers'
 import { EthContext, eDecimals } from '../context/eth'
 
-export const useBlocks = () => {
-  const { blocksContract: contract, handleTransaction } = useContext(EthContext)
-
+export const useBlocks = (blocksAddress) => {
+  const { handleTransaction, signer } = useContext(EthContext)
+  const [contract, setContract] = useState(
+    new ethers.Contract(blocksAddress, Blocks.abi, signer)
+  )
   const handlePurchase = useCallback(
     async (bucket, amount) =>
       handleTransaction(contract, 'purchase', [
