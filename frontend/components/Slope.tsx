@@ -35,6 +35,7 @@ export const Slope = ({ data, actions }) => {
   return (
     <section className={'border'}>
       <h2>slope</h2>
+      <span>bucket: </span>
       <input
         value={inputs.bucket}
         onChange={handleChange}
@@ -42,6 +43,8 @@ export const Slope = ({ data, actions }) => {
         id="bucket"
         name="bucket"
       />
+      <br />
+      <span>amount: </span>
       <input
         value={inputs.amount}
         onChange={handleChange}
@@ -64,7 +67,7 @@ export const Slope = ({ data, actions }) => {
           )
         }
       >
-        slope
+        purchase
       </button>
     </section>
   )

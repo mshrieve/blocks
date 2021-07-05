@@ -1,15 +1,9 @@
-import { useState, useEffect, useCallback, useContext } from 'react'
+const options = ['prices', 'positions']
 
-const options = ['priceData', 'positionData']
 const ChartControl = ({ view, handleSetView }) => {
   return (
     <section>
-      <select
-        onChange={handleSetView}
-        value={view}
-        name="accounts"
-        id="account-select"
-      >
+      <select onChange={handleSetView} value={view} name="view" id="view">
         {options.map((a) => (
           <option key={a} value={a}>
             {a}

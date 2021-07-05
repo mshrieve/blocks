@@ -28,6 +28,7 @@ export const Range = ({ data, actions }) => {
   return (
     <section className={'border'}>
       <h2>range</h2>
+      <span>start: </span>
       <input
         value={inputs.start}
         onChange={handleChange}
@@ -35,6 +36,9 @@ export const Range = ({ data, actions }) => {
         id="start"
         name="start"
       />
+
+      <br />
+      <span>end: </span>
       <input
         value={inputs.end}
         onChange={handleChange}
@@ -42,6 +46,8 @@ export const Range = ({ data, actions }) => {
         id="end"
         name="end"
       />
+      <br />
+      <span>amount: </span>
       <input
         value={inputs.amount}
         onChange={handleChange}
@@ -50,13 +56,13 @@ export const Range = ({ data, actions }) => {
         name="amount"
       />
       <br />
-      <span>block price: {render18(price)}</span>
+      <span>price: {render18(price)}</span>
       <button
         onClick={() =>
           actions.handlePurchaseRange(inputs.start, inputs.end, inputs.amount)
         }
       >
-        block
+        purchase
       </button>
     </section>
   )

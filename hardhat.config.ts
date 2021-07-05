@@ -97,7 +97,7 @@ task(
     const Controller = ControllerFactory.attach(args.controller)
     const round = await Controller.deployRound(
       100, // N = number of buckets
-      eDecimals.times(5000).toFixed(), // b = constant,
+      eDecimals.times(500).toFixed(), // b = constant,
       eDecimals.times(100).toFixed(), // delta = size of each bucket
       args.usdc,
       1626453974, //expiry timestamp,

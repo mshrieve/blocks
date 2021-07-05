@@ -7,7 +7,13 @@ import BigNumber from 'bignumber.js'
 import { render18, renderUSDC } from '../util'
 const eUSDCDecimals = new BigNumber('10').pow(6)
 
-const Wallet = ({ roundContract }) => {
+const Wallet = ({
+  roundContract,
+  totalBalance,
+  redeemableBalance,
+  handleSetActualPrice,
+  actualPrice
+}) => {
   const { getBalance, getAllowance, handleApprove } = useUSDC()
 
   const { activeAccount, lastTxTime } = useContext(EthContext)
@@ -42,7 +48,21 @@ const Wallet = ({ roundContract }) => {
 
   return (
     <section className="border">
-      {/* <span>round balance: {render18(roundBalance)}</span> */}
+      <h2>wallet</h2>
+      {/* <span>
+        redeemable balance at price {actualPrice}:{' '}
+        {redeemableBalance.toString()}
+      </span>
+      <br />
+      set actual price:
+      <input
+        value={actualPrice}
+        onChange={handleSetActualPrice}
+        type="number"
+        id="price"
+        name="price"
+      /> */}
+      <span>total token balance: {render18(totalBalance)}</span>
       <br />
       <span>usdc balance: {renderUSDC(usdcBalance)}</span>
       <br />

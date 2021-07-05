@@ -4,6 +4,11 @@ import { useContext, useMemo } from 'react'
 import { ChartContext } from '../context/chart'
 
 const options = {
+  plugins: {
+    legend: {
+      display: false
+    }
+  },
   scales: {
     y: {
       type: 'logarithmic',

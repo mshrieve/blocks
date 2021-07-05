@@ -26,7 +26,7 @@ export const Purchase = ({ data, actions }) => {
 
   return (
     <section className="border">
-      <h2>purchase</h2>
+      <h2>single block</h2>
       bucket:{' '}
       <input
         value={inputs.bucket}

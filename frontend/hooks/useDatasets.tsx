@@ -23,67 +23,39 @@ const priceOptions = {
   }
 }
 
-export const useDatasets = ({ positions, prices }) => {
+const positionOptions = {
+  scales: {
+    y: {
+      type: 'linear',
+      beginAtZero: true,
+      max: 100000,
+      grid: {
+        drawBorder: false
+      }
+    }
+  }
+}
+
+const setPrices = (current, data) => {
+  current.data.datasets[0].data = data
+  // current.options = priceOptions
+  current.update()
+}
+
+const setPositions = (current, data) => {
+  current.data.datasets[0].data = data
+  // current.options = positionOptions
+  current.update()
+}
+
+export const useDatasets = ({ view, positions, prices }) => {
   const { chartRef } = useContext(ChartContext)
 
   useEffect(() => {
     if (chartRef && chartRef.current) {
-      if (prices) chartRef.current.data.datasets[0].data = prices
-      // if (options) chartRef.current.options = options
-      chartRef.current.update()
+      console.log('view', view, prices, positions)
+      if (view == 'prices') setPrices(chartRef.current, prices)
+      else if (view == 'positions') setPositions(chartRef.current, positions)
     }
-  }, [prices])
-
-  const getPriceDatasets = useCallback(
-    (data) => [
-      {
-        backgroundColor: 'rgba(100,99,132,0.2)',
-        borderColor: 'rgba(100,99,132,1)',
-        borderWidth: 1,
-        hoverBackgroundColor: 'rgba(255,99,132,0.4)',
-        hoverBorderColor: 'rgba(255,99,132,1)',
-        data
-      },
-      // current asset price
-      {
-        backgroundColor: 'rgba(0,99,132,0.2)',
-        borderColor: 'rgba(100,99,132,1)',
-        borderWidth: 0,
-        hoverBackgroundColor: 'rgba(255,99,132,0.4)',
-        hoverBorderColor: 'rgba(255,99,132,1)',
-        data: [...new Array(20).fill(0), 1, ...new Array(79).fill(0)]
-      }
-    ],
-    []
-  )
-
-  const getPositionDatasets = useCallback(
-    (data) => [
-      {
-        backgroundColor: 'rgba(100,99,132,0.2)',
-        borderColor: 'rgba(100,99,132,1)',
-        borderWidth: 1,
-        hoverBackgroundColor: 'rgba(255,99,132,0.4)',
-        hoverBorderColor: 'rgba(255,99,132,1)',
-        data: data
-      }
-    ],
-    []
-  )
-
-  const positionOptions = useCallback(
-    (max) => ({
-      scales: {
-        y: {
-          type: 'linear',
-          beginAtZero: true,
-          max: max ? max : 100000,
-          grid: {
-            drawBorder: false
-          }
-        }
-      }
-    }),
-    []
-  )
+  }, [chartRef, view, positions, prices])
 }
