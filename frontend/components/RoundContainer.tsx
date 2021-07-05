@@ -7,7 +7,7 @@ import { useDatasets } from '../hooks/useDatasets'
 import { useRoundActions } from '../hooks/useRoundActions'
 import { DatasetHandler } from './DatasetHandler'
 import Round from '../../hardhat/artifacts/hardhat/contracts/Round.sol/Round.json'
-
+import { Controls } from './Controls'
 const defaultState = {
   view: undefined,
   handleSetView: (e) => console.error(''),
@@ -36,6 +36,7 @@ export const RoundContainer = () => {
 
   return (
     <span>
+      <Controls data={data} actions={actions} roundContract={roundContract} />{' '}
       <DatasetHandler {...data} />
     </span>
   )

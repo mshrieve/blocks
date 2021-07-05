@@ -13,11 +13,12 @@ export const useRoundActions = (roundContract) => {
     [roundContract]
   )
 
-  const handlePurchaseLeftSlope = useCallback(
-    async (bucket, amount) =>
-      handleTransaction(roundContract, 'purchaseLeftSlope', [
+  const handlePurchaseSlope = useCallback(
+    async (bucket, amount, left) =>
+      handleTransaction(roundContract, 'purchaseSlope', [
         bucket,
-        eDecimals.times(amount).toFixed()
+        eDecimals.times(amount).toFixed(),
+        left
       ]),
     [roundContract]
   )
@@ -34,7 +35,7 @@ export const useRoundActions = (roundContract) => {
 
   return {
     handlePurchase,
-    handlePurchaseLeftSlope,
+    handlePurchaseSlope,
     handlePurchaseRange
   }
 }

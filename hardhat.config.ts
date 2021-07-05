@@ -126,7 +126,7 @@ task(
     console.log(signerAddress)
     await USDC.mint(
       signerAddress,
-      new BigNumber('10').pow(6).times(10000).toFixed()
+      new BigNumber('10').pow(6).times(1000000).toFixed()
     )
   })
 

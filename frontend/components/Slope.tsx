@@ -5,7 +5,8 @@ import { render18, eDecimals } from '../util'
 export const Slope = ({ data, actions }) => {
   const [inputs, setInputs] = useState({
     bucket: 0,
-    amount: 0
+    amount: 0,
+    side: 'left'
   })
 
   const handleChange = (e) =>
@@ -48,11 +49,19 @@ export const Slope = ({ data, actions }) => {
         id="amount"
         name="amount"
       />
+      <select onChange={handleChange} value={inputs.side} name="side" id="side">
+        <option value={'left'}>'left'</option>
+        <option value={'right'}>'right'</option>
+      </select>
       <br />
       <span>price: {render18(price)}</span>
       <button
         onClick={() =>
-          actions.handlePurchaseLeftSlope(inputs.bucket, inputs.amount)
+          actions.handlePurchaseSlope(
+            inputs.bucket,
+            inputs.amount,
+            inputs.side == 'left' ? true : false
+          )
         }
       >
         slope
