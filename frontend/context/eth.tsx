@@ -6,20 +6,16 @@ import {
   useContext
 } from 'react'
 import { Contract, ethers } from 'ethers'
-import Blocks from '../../hardhat/artifacts/hardhat/contracts/Round.sol/Round.json'
-import USDC from '../../hardhat/artifacts/hardhat/contracts/Mocks/USDC.sol/USDC.json'
+
 import Controller from '../../hardhat/artifacts/hardhat/contracts/Controller.sol/Controller.json'
 
 import { eDecimals } from '../util'
-
-const initPrices = new Array(100).fill(0.01)
 
 const defaultState = {
   updateActiveAccount: (address) => console.error('setAccount is not defined.'),
   handleTransaction: async (contract, method, args) => ({
     logs: []
   }),
-  usdcContract: undefined,
   controllerContract: undefined,
   accounts: undefined,
   activeAccount: undefined,
@@ -55,21 +51,21 @@ const EthProvider = ({ children }) => {
       controllerContract.getVaultAddress().then((x) => setVaultAddress(x))
   }, [controllerContract])
 
-  const [usdcContract, setUsdcContract] = useState(
-    new ethers.Contract(process.env.NEXT_PUBLIC_USDC_ADDRESS, USDC.abi, signer)
-  )
-
   const updateActiveAccount = useCallback(
     (account) => {
       const updatedSigner = provider.getSigner(account)
       setSigner(updatedSigner)
       updatedSigner.getAddress().then((x) => setActiveAccount(x))
     },
-    [usdcContract, provider]
+    [provider]
   )
 
   const handleTransaction = useCallback(
     async (contract, method, args) => {
+      if (contract == undefined) {
+        console.error('contract undefined')
+        return undefined
+      }
       const transaction = await contract.connect(signer)[method](...args)
       const receipt = await transaction.wait()
       setLastTxTime((x) => x + 1)
@@ -106,7 +102,6 @@ const EthProvider = ({ children }) => {
       updateActiveAccount,
       activeAccount,
       signer,
-      usdcContract,
       lastTxTime,
       handleTransaction
     }))
@@ -115,7 +110,6 @@ const EthProvider = ({ children }) => {
     updateActiveAccount,
     activeAccount,
     signer,
-    usdcContract,
     lastTxTime,
     handleTransaction
   ])
@@ -125,7 +119,6 @@ const EthProvider = ({ children }) => {
     updateActiveAccount,
     activeAccount,
     signer,
-    usdcContract,
     controllerContract,
     lastTxTime,
     handleTransaction

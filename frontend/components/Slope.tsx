@@ -1,17 +1,13 @@
 import { BigNumber } from 'bignumber.js'
 import { useEffect, useState } from 'react'
 import { render18, eDecimals } from '../util'
-import { useBlocks } from '../hooks/useBlocks'
-import { useData } from '../hooks/useData'
-import { resourceLimits } from 'worker_threads'
 
-export const Slope = ({}) => {
+export const Slope = ({ data, actions }) => {
   const [inputs, setInputs] = useState({
     bucket: 0,
     amount: 0
   })
-  const { handlePurchaseLeftSlope } = useBlocks()
-  const { priceData } = useData()
+
   const handleChange = (e) =>
     setInputs((inputs) => ({
       ...inputs,
@@ -24,7 +20,7 @@ export const Slope = ({}) => {
       .times(eDecimals)
       .div(inputs.bucket)
 
-    const x = priceData
+    const x = data.prices
       .slice(0, inputs.bucket)
       .map((p, i) => {
         const result = amountIncrement.times(inputs.bucket - i).times(p)
@@ -33,7 +29,7 @@ export const Slope = ({}) => {
       })
       .reduce((acc, cur) => acc.plus(cur), new BigNumber(0))
     setPrice(x)
-  }, [priceData, inputs])
+  }, [data.prices, inputs])
 
   return (
     <section className={'border'}>
@@ -55,7 +51,9 @@ export const Slope = ({}) => {
       <br />
       <span>price: {render18(price)}</span>
       <button
-        onClick={() => handlePurchaseLeftSlope(inputs.bucket, inputs.amount)}
+        onClick={() =>
+          actions.handlePurchaseLeftSlope(inputs.bucket, inputs.amount)
+        }
       >
         slope
       </button>

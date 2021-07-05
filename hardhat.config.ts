@@ -100,7 +100,7 @@ task(
       eDecimals.times(5000).toFixed(), // b = constant,
       eDecimals.times(100).toFixed(), // delta = size of each bucket
       args.usdc,
-      1625453974, //expiry timestamp,
+      1626453974, //expiry timestamp,
       args.aggregator // chainlink oracle
     )
     const abi = [
@@ -112,6 +112,22 @@ task(
 
     const receipt = await round.wait()
     console.log(iface.parseLog(receipt.logs[1]).args[0])
+  })
+
+task(
+  'donate_usdc',
+  'deploys a round (with helper contracts) and returns its address'
+)
+  .addParam('usdc', "The usdc's address")
+  .setAction(async (args, { ethers }) => {
+    const USDCFactory = await ethers.getContractFactory('USDC')
+    const USDC = USDCFactory.attach(args.usdc)
+    const signerAddress = await USDC.signer.getAddress()
+    console.log(signerAddress)
+    await USDC.mint(
+      signerAddress,
+      new BigNumber('10').pow(6).times(10000).toFixed()
+    )
   })
 
 task(

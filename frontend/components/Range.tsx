@@ -1,16 +1,13 @@
 import { BigNumber } from 'bignumber.js'
 import { useEffect, useState } from 'react'
 import { render18, eDecimals } from '../util'
-import { useBlocks } from '../hooks/useBlocks'
-import { useData } from '../hooks/useData'
-export const Range = ({}) => {
+
+export const Range = ({ data, actions }) => {
   const [inputs, setInputs] = useState({
     start: 0,
     end: 0,
     amount: 0
   })
-  const { handlePurchaseRange } = useBlocks()
-  const { priceData } = useData()
 
   const handleChange = (e) =>
     setInputs((inputs) => ({
@@ -20,13 +17,13 @@ export const Range = ({}) => {
   const [price, setPrice] = useState(new BigNumber(0))
 
   useEffect(() => {
-    const x = priceData
+    const x = data.prices
       .slice(inputs.start, inputs.end)
       .reduce((acc, cur) => acc.plus(cur), new BigNumber(0))
       .times(inputs.amount)
       .times(eDecimals)
     setPrice(x)
-  }, [priceData, inputs])
+  }, [data.prices, inputs])
 
   return (
     <section className={'border'}>
@@ -56,7 +53,7 @@ export const Range = ({}) => {
       <span>block price: {render18(price)}</span>
       <button
         onClick={() =>
-          handlePurchaseRange(inputs.start, inputs.end, inputs.amount)
+          actions.handlePurchaseRange(inputs.start, inputs.end, inputs.amount)
         }
       >
         block

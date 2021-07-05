@@ -1,9 +1,7 @@
 import { useState, useEffect, useCallback, useContext } from 'react'
-import { useRoundData } from '../hooks/useRoundData'
-const options = ['priceData', 'positionData']
-const ChartControl = () => {
-  const { view, handleSetView } = useRoundData()
 
+const options = ['priceData', 'positionData']
+const ChartControl = ({ view, handleSetView }) => {
   return (
     <section>
       <select

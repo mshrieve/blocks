@@ -1,6 +1,6 @@
 import { Bar } from 'react-chartjs-2'
 
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 import { ChartContext } from '../context/chart'
 
 const options = {
@@ -28,12 +28,18 @@ const data = {
       borderWidth: 1,
       hoverBackgroundColor: 'rgba(255,99,132,0.4)',
       hoverBorderColor: 'rgba(255,99,132,1)',
-      data: new Array(100).fill(0)
+      data: new Array(100).fill(1)
     }
   ]
 }
 
 export const Chart = () => {
   const { chartRef } = useContext(ChartContext)
-  return <Bar ref={chartRef} type="bar" data={data} options={options} />
+  const Chart = useMemo(
+    () =>
+      ({ chartRef }) =>
+        <Bar ref={chartRef} type="bar" data={data} options={options} />,
+    []
+  )
+  return <Chart chartRef={chartRef} />
 }

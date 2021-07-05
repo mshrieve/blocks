@@ -1,16 +1,15 @@
 import { useEffect, useState, useContext } from 'react'
-import { useBlocks } from '../hooks/useBlocks'
 import { useRoundData } from '../hooks/useRoundData'
 import { render18, eDecimals } from '../util'
 import { BigNumber } from 'bignumber.js'
 
-export const Purchase = ({}) => {
+export const Purchase = ({ data, actions }) => {
   const [inputs, setInputs] = useState({
     bucket: 0,
     amount: 0
   })
-  const { handlePurchase } = useBlocks()
-  const { priceData } = useRoundData()
+
+  useEffect(() => console.log('data', data), [data])
   const handleChange = (e) =>
     setInputs((inputs) => ({
       ...inputs,
@@ -19,11 +18,11 @@ export const Purchase = ({}) => {
   const [price, setPrice] = useState(new BigNumber(0))
 
   useEffect(() => {
-    const x = new BigNumber(priceData[inputs.bucket])
+    const x = new BigNumber(data.prices[inputs.bucket])
       .times(inputs.amount)
       .times(eDecimals)
     setPrice(x)
-  }, [priceData, inputs])
+  }, [data.prices, inputs])
 
   return (
     <section className="border">
@@ -47,7 +46,9 @@ export const Purchase = ({}) => {
       />
       <br />
       <span>price: {render18(price)}</span>
-      <button onClick={() => handlePurchase(inputs.bucket, inputs.amount)}>
+      <button
+        onClick={() => actions.handlePurchase(inputs.bucket, inputs.amount)}
+      >
         purchase
       </button>
     </section>

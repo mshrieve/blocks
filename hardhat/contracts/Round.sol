@@ -59,7 +59,6 @@ contract Round is Ownable {
     ERC20 public _asset;
 
     Token private _token;
-    address private _token_address;
     Aggregator private _aggregator;
     address private _vault_address;
 
@@ -113,12 +112,32 @@ contract Round is Ownable {
     }
 
     function attachToken(address token_address) external onlyOwner {
-        require(_token_address == address(0), 'token already attached');
-        _token_address = token_address;
+        require(address(_token) == address(0), 'token already attached');
+        _token = Token(token_address);
+    }
+
+    function getTokenAddress() external view returns (address) {
+        return address(_token);
     }
 
     function getAssetAddress() public view returns (address) {
         return address(_asset);
+    }
+
+    function balanceOf(address _owner, uint256 _id)
+        external
+        view
+        returns (uint256)
+    {
+        return _token.balanceOf(_owner, _id);
+    }
+
+    function balanceOfBatch(address[] calldata _owners, uint256[] calldata _ids)
+        external
+        view
+        returns (uint256[] memory)
+    {
+        return _token.balanceOfBatch(_owners, _ids);
     }
 
     function purchase(uint256 bucket, uint256 amount)

@@ -1,13 +1,15 @@
 import { useEffect, useState, useContext } from 'react'
-import { useBlocksBalance } from '../hooks/useBlocksBalance'
+import { useRoundBalance } from '../hooks/useRoundBalance'
+
 import { useUSDC } from '../hooks/useUSDC'
 import { EthContext } from '../context/eth'
 import BigNumber from 'bignumber.js'
 import { render18, renderUSDC } from '../util'
 const eUSDCDecimals = new BigNumber('10').pow(6)
-const Wallet = ({}) => {
+
+const Wallet = ({ roundContract }) => {
   const { getBalance, getAllowance, handleApprove } = useUSDC()
-  const blocksBalance = useBlocksBalance()
+
   const { activeAccount, lastTxTime } = useContext(EthContext)
   const [usdcBalance, setUSDCBalance] = useState(new BigNumber(0))
   const [usdcAllowance, setUSDCAllowance] = useState(new BigNumber(0))
@@ -23,12 +25,16 @@ const Wallet = ({}) => {
     }))
   useEffect(() => {
     console.log('Wallet', activeAccount, lastTxTime)
-    if (activeAccount != undefined && activeAccount.length > 0) {
+    if (
+      activeAccount != undefined &&
+      roundContract != undefined &&
+      activeAccount.length > 0
+    ) {
       getBalance(activeAccount)
         .then((x: BigNumber) => new BigNumber(x.toString()))
         .then((x) => setUSDCBalance(x))
 
-      getAllowance(activeAccount)
+      getAllowance(activeAccount, roundContract.address)
         .then((x: BigNumber) => new BigNumber(x.toString()))
         .then((x) => setUSDCAllowance(x))
     }
@@ -36,7 +42,7 @@ const Wallet = ({}) => {
 
   return (
     <section className="border">
-      <span>blocks balance: {render18(blocksBalance)}</span>
+      {/* <span>round balance: {render18(roundBalance)}</span> */}
       <br />
       <span>usdc balance: {renderUSDC(usdcBalance)}</span>
       <br />
@@ -50,7 +56,10 @@ const Wallet = ({}) => {
       />
       <button
         onClick={() =>
-          handleApprove(eUSDCDecimals.times(inputs.approval).toString())
+          handleApprove(
+            eUSDCDecimals.times(inputs.approval).toString(),
+            roundContract.address
+          )
         }
       >
         approve
