@@ -1,5 +1,4 @@
 import { Bar } from 'react-chartjs-2'
-import { Chart } from 'chart.js'
 
 import { useContext } from 'react'
 import { ChartContext } from '../context/chart'
@@ -34,7 +33,7 @@ const data = {
   ]
 }
 
-export const WrappedChart = () => {
+export const Chart = () => {
   const { chartRef } = useContext(ChartContext)
   return <Bar ref={chartRef} type="bar" data={data} options={options} />
 }

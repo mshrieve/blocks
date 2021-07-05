@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from 'react'
 import { useBlocks } from '../hooks/useBlocks'
-import { useData } from '../hooks/useData'
+import { useRoundData } from '../hooks/useRoundData'
 import { render18, eDecimals } from '../util'
 import { BigNumber } from 'bignumber.js'
 
@@ -10,7 +10,7 @@ export const Purchase = ({}) => {
     amount: 0
   })
   const { handlePurchase } = useBlocks()
-  const { priceData } = useData()
+  const { priceData } = useRoundData()
   const handleChange = (e) =>
     setInputs((inputs) => ({
       ...inputs,

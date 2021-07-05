@@ -13,16 +13,8 @@ library Math {
         '\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00\x80\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00\x80\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00\x80\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00\x80\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00\x80\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00\x80\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00\x80\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x00\x00\x00\x00';
     uint256 constant decimals = 18;
     uint256 constant e_decimals = 10**decimals;
-    bytes constant pade_coefficients =
-        '\x06\xf0\x5b\x59\xd3\xb2\x00\x00\x01\x8a\xbe\xf7\x84\x60\x71\xc0\x00\x31\x57\xde\xf0\x8c\x0e\x38\x00\x03\x86\x46\xc8\x0a\x01\x04\x00\x00\x1e\x13\x6d\x11\x66\x6f';
 
-    uint256 constant pade1 = e_decimals / 2;
-    uint256 constant pade2 = e_decimals / 9;
-    uint256 constant pade3 = e_decimals / 72;
-    uint256 constant pade4 = e_decimals / 1008;
-    uint256 constant pade5 = e_decimals / 30240;
-
-    function logarithm(uint256 operand) internal pure returns (uint256) {
+    function logarithm(uint256 operand) external pure returns (uint256) {
         uint256 x = operand / e_decimals;
         require(x > 0, 'logarithm: operand too small');
         uint256 integer_part;
@@ -77,16 +69,7 @@ library Math {
         return fractional_part + integer_part;
     }
 
-    // could a Padé Approximation be much more gas efficient ?
-    // seems like the answer _could_ be yes
-    // the Padé Approximation on wikipedia for e^x is a
-    // ratio of two (full) degree 5 polynomials
-    // so the computation would require computing
-    // x, x^2, ..., x^5, followed by 10 multiplications, 10 sums, and a quotient
-    // vs. for us, 62 lookups/bitwise ands, and up to 124 muls + divs.
-    // this is not counting the computation of the integer part, which
-    // presumably would be the same for both.
-    function exponentiate(uint256 exponent) internal pure returns (uint256) {
+    function exponentiate(uint256 exponent) external pure returns (uint256) {
         uint256 integer_part = exponent / e_decimals;
         uint256 fractional_part = exponent % e_decimals;
         uint256 integral_result = 2**integer_part;
@@ -98,33 +81,6 @@ library Math {
                     e_decimals;
         }
         return integral_result * fractional_result;
-    }
-
-    function padeExponentiate(uint256 exponent)
-        internal
-        pure
-        returns (uint256)
-    {
-        uint256 numerator = e_decimals;
-        uint256 denominatorPositive = e_decimals;
-        uint256 denominatorNegative;
-
-        for (uint256 i = 0; i < 5; i++) {
-            uint256 coefficient = pade_coefficient_lookup(i);
-            numerator += (coefficient * power(exponent, i + 1)) / e_decimals;
-            if (i % 2 == 0)
-                denominatorNegative +=
-                    (coefficient * power(exponent, i + 1)) /
-                    e_decimals;
-            else
-                denominatorPositive +=
-                    (coefficient * power(exponent, i + 1)) /
-                    e_decimals;
-        }
-
-        return
-            (numerator * e_decimals) /
-            (denominatorPositive - denominatorNegative);
     }
 
     function power(uint256 base, uint256 exponent)
@@ -153,22 +109,6 @@ library Math {
             // 192 bits = 24 bytes = 256 - 64
             value := mload(add(table, offset))
             // exponent_value := mload(add(table, index))
-        }
-        return value;
-    }
-
-    function pade_coefficient_lookup(uint256 index)
-        internal
-        pure
-        returns (uint256)
-    {
-        bytes memory table = pade_coefficients;
-        // we go 8 bytes at a time
-        // skipping the first 32
-        uint256 offset = 8 * index + 8;
-        uint64 value;
-        assembly {
-            value := mload(add(table, offset))
         }
         return value;
     }

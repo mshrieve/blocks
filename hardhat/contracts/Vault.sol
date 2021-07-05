@@ -2,28 +2,34 @@
 pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
+import './Controller.sol';
+import './Token.sol';
 
-contract Vault {
-    mapping(address => uint256) balances;
+contract Vault is Ownable {
+    mapping(address => bool) public _rounds; // valid rounds
+    modifier onlyRound {
+        require(_rounds[msg.sender], 'can only call Vault from a Round');
+        _;
+    }
+    event redemption(address recipient, uint256 amount, address asset_address);
 
-    constructor() {}
+    constructor() Ownable() {}
 
-    function handleTransferToVault(
-        address round,
-        uint256 amount,
-        address asset
-    ) public {
-        IERC20(asset).transferFrom(round, address(this), amount);
-        balances[asset] += amount;
+    function approveRound(address round) external onlyOwner {
+        _rounds[round] = true;
     }
 
-    // if a round incurs losses, we need to pay out from the reserves
-    function handleTransferFromVault(
-        address round,
+    function revokeRound(address round) external onlyOwner {
+        _rounds[round] = false;
+    }
+
+    function redeem(
+        address recipient,
         uint256 amount,
-        address asset
-    ) public {
-        IERC20(asset).transfer(round, amount);
-        balances[asset] -= amount;
+        address asset_address
+    ) external onlyRound {
+        IERC20(asset_address).transfer(recipient, amount);
+        emit redemption(recipient, amount, asset_address);
     }
 }

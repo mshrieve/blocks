@@ -25,17 +25,17 @@ contract MathHarness {
         return exponent.exponentiate();
     }
 
-    function padeExponentiate(uint256 exponent) public pure returns (uint256) {
-        return exponent.padeExponentiate();
-    }
+    // function padeExponentiate(uint256 exponent) public pure returns (uint256) {
+    //     return exponent.padeExponentiate();
+    // }
 
-    function pade_coefficient_lookup(uint256 index)
-        public
-        pure
-        returns (uint256)
-    {
-        return index.pade_coefficient_lookup();
-    }
+    // function pade_coefficient_lookup(uint256 index)
+    //     public
+    //     pure
+    //     returns (uint256)
+    // {
+    //     return index.pade_coefficient_lookup();
+    // }
 
     function power(uint256 base, uint256 exponent)
         public

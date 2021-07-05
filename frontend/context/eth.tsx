@@ -6,7 +6,7 @@ import {
   useContext
 } from 'react'
 import { Contract, ethers } from 'ethers'
-import Blocks from '../../hardhat/artifacts/hardhat/contracts/Blocks.sol/Blocks.json'
+import Blocks from '../../hardhat/artifacts/hardhat/contracts/Round.sol/Round.json'
 import USDC from '../../hardhat/artifacts/hardhat/contracts/Mocks/USDC.sol/USDC.json'
 import Controller from '../../hardhat/artifacts/hardhat/contracts/Controller.sol/Controller.json'
 

@@ -1,11 +1,12 @@
 import { useContext, useCallback, useState } from 'react'
 import { ethers } from 'ethers'
 import { EthContext, eDecimals } from '../context/eth'
+import Round from '../../hardhat/artifacts/hardhat/contracts/Round.sol/Round.json'
 
 export const useBlocks = (blocksAddress) => {
   const { handleTransaction, signer } = useContext(EthContext)
   const [contract, setContract] = useState(
-    new ethers.Contract(blocksAddress, Blocks.abi, signer)
+    new ethers.Contract(blocksAddress, Round.abi, signer)
   )
   const handlePurchase = useCallback(
     async (bucket, amount) =>
