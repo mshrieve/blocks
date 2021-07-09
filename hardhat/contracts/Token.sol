@@ -42,13 +42,11 @@ contract Token is ERC1155 {
         address round_address
     ) ERC1155('none') {
         require(N > 0, 'constructor: N should be positive');
-        _N = N;
         require(b > 0, 'constructor: b should be positive');
+        _N = N;
         _b = b;
-
         _total_weight = _N * e_decimals;
         _value = (_b * _total_weight.logarithm()) / e_decimals;
-
         _round_address = round_address;
     }
 
@@ -84,6 +82,18 @@ contract Token is ERC1155 {
         _weights[bucket] = new_weight - e_decimals;
     }
 
+    function getIncrementBucketWeight(uint256 bucket, uint256 multiplier)
+        internal
+        view
+        returns (uint256)
+    {
+        // need to add 1, since weights are initialized at zero
+        uint256 old_weight = _weights[bucket] + e_decimals;
+        uint256 new_weight = (old_weight * multiplier) / e_decimals;
+        uint256 weight = new_weight - old_weight;
+        return weight;
+    }
+
     function purchase(
         uint256 bucket,
         uint256 amount,
@@ -100,6 +110,20 @@ contract Token is ERC1155 {
         _value = value;
 
         _mint(recipient, bucket, amount, '');
+        return price;
+    }
+
+    function getPurchasePrice(uint256 bucket, uint256 amount)
+        external
+        view
+        returns (uint256)
+    {
+        uint256 multiplier = ((amount * e_decimals) / _b).exponentiate();
+        uint256 total_weight = _total_weight +
+            getIncrementBucketWeight(bucket, multiplier);
+        uint256 value = (_b * total_weight.logarithm()) / e_decimals;
+        uint256 price = value - _value;
+
         return price;
     }
 
@@ -133,6 +157,25 @@ contract Token is ERC1155 {
         return price;
     }
 
+    function getPurchaseRangePrice(
+        uint256 start,
+        uint256 end,
+        uint256 amount
+    ) external view returns (uint256) {
+        uint256 multiplier = ((amount * e_decimals) / _b).exponentiate();
+        require(start < end);
+        require(end <= _N);
+        uint256 total_weight = _total_weight;
+
+        for (uint256 bucket = start; bucket < end; bucket++) {
+            total_weight += getIncrementBucketWeight(bucket, multiplier);
+        }
+
+        uint256 value = (_b * _total_weight.logarithm()) / e_decimals;
+        uint256 price = value - _value;
+        return price;
+    }
+
     function purchaseSlope(
         uint256 bucket,
         uint256 amount,
@@ -141,33 +184,22 @@ contract Token is ERC1155 {
     ) external onlyRound returns (uint256) {
         require(bucket < _N, 'invalid bucket');
 
-        uint256 amount_increment = amount / bucket;
-        uint256 bucket_amount = amount_increment;
-
-        uint256 length;
-        int256 k;
-
-        if (left) {
-            k = -1;
-            length = bucket;
-        } else {
-            length = _N - bucket;
-            k = 1;
-        }
-
+        (uint256 k, uint256 length) = left ? (0, bucket) : (2, _N - bucket);
         uint256[] memory buckets = new uint256[](length);
         uint256[] memory amounts = new uint256[](length);
 
+        uint256 amount_increment = amount / length;
+        uint256 bucket_amount = amount_increment;
         uint256 base_multiplier = ((amount * e_decimals) / (length * _b))
         .exponentiate();
         uint256 multiplier = base_multiplier;
-        int256 i = int256(bucket);
+        uint256 i = bucket;
         for (uint256 j = 0; j < length; j++) {
-            i += k;
-            _total_weight += incrementBucket(uint256(i), multiplier);
+            i = i + k - 1;
+            _total_weight += incrementBucket(i, multiplier);
 
-            _quantities[uint256(i)] += bucket_amount;
-            buckets[j] = uint256(i);
+            _quantities[i] += bucket_amount;
+            buckets[j] = i;
             amounts[j] = bucket_amount;
             multiplier = (multiplier * base_multiplier) / e_decimals;
             bucket_amount += amount_increment;
@@ -178,6 +210,31 @@ contract Token is ERC1155 {
         _value = value;
 
         _mintBatch(recipient, buckets, amounts, '');
+        return price;
+    }
+
+    function getPurchaseSlopePrice(
+        uint256 bucket,
+        uint256 amount,
+        bool left
+    ) external view returns (uint256) {
+        require(bucket < _N, 'invalid bucket');
+
+        (uint256 k, uint256 length) = left ? (0, bucket) : (2, _N - bucket);
+        uint256 base_multiplier = ((amount * e_decimals) / (length * _b))
+        .exponentiate();
+        uint256 multiplier = base_multiplier;
+        uint256 i = bucket;
+        uint256 total_weight = _total_weight;
+
+        for (uint256 j = 0; j < length; j++) {
+            i = i + k - 1;
+            total_weight += getIncrementBucketWeight(i, multiplier);
+            multiplier = (multiplier * base_multiplier) / e_decimals;
+        }
+
+        uint256 value = (_b * total_weight.logarithm()) / e_decimals;
+        uint256 price = value - _value;
         return price;
     }
 

@@ -10,7 +10,7 @@ import './Interfaces/IRoundFactory.sol';
 
 contract Controller is Ownable {
     address[] private _rounds; // public, list, get a child address at row #
-
+    mapping(address => bool) public _isRound; // valid rounds
     event RoundCreated(address round, address asset, uint256 expiry);
     address private _vault_address;
     RoundFactory private _round_factory;
@@ -37,7 +37,7 @@ contract Controller is Ownable {
         uint256 expiry,
         address aggregator
     ) external onlyOwner {
-        address round_address = _round_factory.deployRound(
+        address round = _round_factory.deployRound(
             N,
             b,
             delta,
@@ -46,8 +46,9 @@ contract Controller is Ownable {
             expiry,
             aggregator
         );
-        _vault.approveRound(round_address);
-        emit RoundCreated(round_address, asset, expiry); // emit an event - another way to monitor this
-        _rounds.push(round_address); // you can use the getter to fetch child addresses
+        _vault.approveRound(round);
+        _rounds.push(round);
+        _isRound[round] = true;
+        emit RoundCreated(round, asset, expiry); // emit an event - another way to monitor this
     }
 }
