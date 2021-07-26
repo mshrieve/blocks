@@ -27,10 +27,13 @@ speculators help keep prices low for hedgers, and vice-versa
 in this way, blocks serves as a _prediction market_ for the price of the asset,
 providing information on the future price of the asset.
 
-two types of 'bundles' of buckets can be easily purchased:
+three types of 'bundles' of buckets can be easily purchased:
 
 i) a fixed quantity of all buckets above or below a given price.
 these bundles have a payout that is equivalent to a so-called binary, or digital option.
+
+ii) a fixed quantity of all buckets in a given range.
+the payout of these bundles is equivalent to a binary option _spread_.
 
 ii) a linearly increasing quantity of all buckets above or below a given price.
 these bundles have a payout that closely approximates, but is not _quite_ equal to, a traditional call or put option.
