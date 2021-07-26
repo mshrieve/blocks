@@ -7,7 +7,7 @@ you can watch my video submission on youtube if you like:
 https://www.youtube.com/watch?v=ukqOrri8E7M
 
 
-blocks allows users to buy erc1155 tokens that correspond to 'buckets'.
+blocks allows users to buy erc1155 tokens that correspond to _buckets_.
 a bucket is a discrete price range of a particular asset.
 for a given round, if the asset's price falls in the corresponding bucket at expiry, 
 that token can be exchanged for 1 USDC (or whichever 'stable' asset you use to price the main asset).
