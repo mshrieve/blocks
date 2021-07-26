@@ -33,6 +33,6 @@ i) a fixed quantity of all buckets above or below a given price.
 these bundles have a payout that is equivalent to a so-called binary, or digital option.
 
 ii) a linearly increasing quantity of all buckets above or below a given price.
-these bundles have a payout that closely approximates a traditional option.
+these bundles have a payout that closely approximates, but is not _quite_ equal to, a traditional call or put option.
 
 get in touch with me at mike@loset.info or on discord @ loset#0786 with any questions, or if you would like to read a draft of the whitepaper :)
