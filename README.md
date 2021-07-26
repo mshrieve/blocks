@@ -29,10 +29,10 @@ providing information on the future price of the asset.
 
 two types of 'bundles' of buckets can be easily purchased:
 
-i) a fixed quantity of all buckets above or below a given price
+i) a fixed quantity of all buckets above or below a given price.
 these bundles have a payout that is equivalent to a so-called binary, or digital option.
 
-ii) a linearly increasing quantity of all buckets above or below a given price
+ii) a linearly increasing quantity of all buckets above or below a given price.
 these bundles have a payout that closely approximates a traditional option.
 
 get in touch with me at mike@loset.info or on discord @ loset#0786 with any questions, or if you would like to read a draft of the whitepaper :)
